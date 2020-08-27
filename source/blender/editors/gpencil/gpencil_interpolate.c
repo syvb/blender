@@ -1046,8 +1046,27 @@ static int gpencil_interpolate_seq_exec(bContext *C, wmOperator *op)
         /* create new stroke */
         bGPDstroke *new_stroke = BKE_gpencil_stroke_duplicate(gps_from, true);
 
+        if (gps_from->totpoints > gps_to->totpoints) {
+          /* destination stroke is smaller, subdivide to stroke */
+          bGPDstroke *new_gps_to = BKE_gpencil_stroke_duplicate(gps_to, true);
+          while (gps_from->totpoints > new_gps_to->totpoints) {
+            gpencil_subdivide_stroke(new_gps_to, 1, false);
+          }
+          /* subdivide one more time */
+          gpencil_subdivide_stroke(gps_to, 1, false);
+          /* remove subdivided points until both extremes have equal points or out of points */
+          LISTBASE_FOREACH (bGPDstroke *, point, gps) {
+
+            if (gps_from->totpoints == gps_to->totpoints) break;
+          }
+          gps_to = new_gps_to; // TODO: free new_gps_to later
+        }
+
+        #if 0
+        /* TODO: remove */
         /* if destination stroke is smaller, resize new_stroke to size of gps_to stroke */
         if (gps_from->totpoints > gps_to->totpoints) {
+
           /* free weights of removed points */
           if (new_stroke->dvert != NULL) {
             BKE_defvert_array_free_elems(new_stroke->dvert + gps_to->totpoints,
@@ -1061,9 +1080,9 @@ static int gpencil_interpolate_seq_exec(bContext *C, wmOperator *op)
             new_stroke->dvert = MEM_recallocN(new_stroke->dvert,
                                               sizeof(*new_stroke->dvert) * gps_to->totpoints);
           }
-
           new_stroke->totpoints = gps_to->totpoints;
         }
+        #endif
 
         /* update points position */
         gpencil_interpolate_update_points(gps_from, gps_to, new_stroke, factor);

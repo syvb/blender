@@ -351,7 +351,7 @@ void gpencil_stroke_delete_tagged_points(bGPDframe *gpf,
                                          int limit);
 int gpencil_delete_selected_point_wrap(bContext *C);
 
-void gpencil_subdivide_stroke(bGPDstroke *gps, const int subdivide);
+void gpencil_subdivide_stroke(bGPDstroke *gps, const int subdivide, const int max_points, const bool smooth_stroke);
 
 /* Layers Enums -------------------------------------- */
 

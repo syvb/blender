@@ -1322,8 +1322,10 @@ void ED_gpencil_project_point_to_plane(const Scene *scene,
  * Subdivide a stroke once, by adding a point half way between each pair of existing points
  * \param gps: Stroke data
  * \param subdivide: Number of times to subdivide
+ * \param max_points: Maximum number of points added from subdivision, ignored if 0
+ * \param smooth_stroke: Whether to smooth the stroke,
  */
-void gpencil_subdivide_stroke(bGPDstroke *gps, const int subdivide)
+void gpencil_subdivide_stroke(bGPDstroke *gps, const int subdivide, const int max_points, const bool smooth_stroke)
 {
   bGPDspoint *temp_points;
   int totnewpoints, oldtotpoints;
@@ -1396,21 +1398,23 @@ void gpencil_subdivide_stroke(bGPDstroke *gps, const int subdivide)
 
     MEM_SAFE_FREE(temp_points);
 
-    /* move points to smooth stroke */
-    /* duplicate points in a temp area with the new subdivide data */
-    temp_points = MEM_dupallocN(gps->points);
+    if (smooth_stroke) {
+      /* move points to smooth stroke */
+      /* duplicate points in a temp area with the new subdivide data */
+      temp_points = MEM_dupallocN(gps->points);
 
-    /* extreme points are not changed */
-    for (int i = 0; i < gps->totpoints - 2; i++) {
-      bGPDspoint *pt = &temp_points[i];
-      bGPDspoint *next = &temp_points[i + 1];
-      bGPDspoint *pt_final = &gps->points[i + 1];
+      /* extreme points are not changed */
+      for (int i = 0; i < gps->totpoints - 2; i++) {
+        bGPDspoint *pt = &temp_points[i];
+        bGPDspoint *next = &temp_points[i + 1];
+        bGPDspoint *pt_final = &gps->points[i + 1];
 
-      /* move point */
-      interp_v3_v3v3(&pt_final->x, &pt->x, &next->x, 0.5f);
+        /* move point */
+        interp_v3_v3v3(&pt_final->x, &pt->x, &next->x, 0.5f);
+      }
+      /* free temp memory */
+      MEM_SAFE_FREE(temp_points);
     }
-    /* free temp memory */
-    MEM_SAFE_FREE(temp_points);
   }
   /* Calc geometry data. */
   BKE_gpencil_stroke_geometry_update(gps);

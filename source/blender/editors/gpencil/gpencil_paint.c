@@ -1194,7 +1194,7 @@ static void gpencil_stroke_newfrombuffer(tGPsdata *p)
 
     /* subdivide and smooth the stroke */
     if ((brush->gpencil_settings->flag & GP_BRUSH_GROUP_SETTINGS) && (subdivide > 0)) {
-      gpencil_subdivide_stroke(gps, subdivide);
+      gpencil_subdivide_stroke(gps, subdivide, 0, true);
     }
 
     /* Smooth stroke after subdiv - only if there's something to do for each iteration,
