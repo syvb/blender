@@ -1322,7 +1322,7 @@ void ED_gpencil_project_point_to_plane(const Scene *scene,
  * Subdivide a stroke once, by adding a point half way between each pair of existing points
  * \param gps: Stroke data
  * \param subdivide: Number of times to subdivide
- * \param max_points: Maximum number of points added from subdivision, ignored if 0
+ * \param max_points: Maximum number of final points, does no subdividing if the total points already exceeds this.
  * \param smooth_stroke: Whether to smooth the stroke,
  */
 void gpencil_subdivide_stroke(bGPDstroke *gps, const int subdivide, const int max_points, const bool smooth_stroke)
@@ -1334,6 +1334,10 @@ void gpencil_subdivide_stroke(bGPDstroke *gps, const int subdivide, const int ma
   /* loop as many times as levels */
   for (int s = 0; s < subdivide; s++) {
     totnewpoints = gps->totpoints - 1;
+    if ((totnewpoints + gps->totpoints) > max_points) {
+      totnewpoints = max_points - gps->totpoints;
+      if (totnewpoints < 0) totnewpoints = 0;
+    }
     /* duplicate points in a temp area */
     temp_points = MEM_dupallocN(gps->points);
     oldtotpoints = gps->totpoints;

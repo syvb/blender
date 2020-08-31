@@ -1050,14 +1050,7 @@ static int gpencil_interpolate_seq_exec(bContext *C, wmOperator *op)
           /* destination stroke is smaller, subdivide to stroke */
           bGPDstroke *new_gps_to = BKE_gpencil_stroke_duplicate(gps_to, true);
           while (gps_from->totpoints > new_gps_to->totpoints) {
-            gpencil_subdivide_stroke(new_gps_to, 1, false);
-          }
-          /* subdivide one more time */
-          gpencil_subdivide_stroke(gps_to, 1, false);
-          /* remove subdivided points until both extremes have equal points or out of points */
-          LISTBASE_FOREACH (bGPDstroke *, point, gps) {
-
-            if (gps_from->totpoints == gps_to->totpoints) break;
+            gpencil_subdivide_stroke(new_gps_to, 1, gps_from->totpoints, false);
           }
           gps_to = new_gps_to; // TODO: free new_gps_to later
         }
